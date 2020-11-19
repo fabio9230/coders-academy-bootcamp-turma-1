@@ -1,18 +1,13 @@
+using CodersAcademy.API.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace CodersAcademy
+namespace CodersAcademy.API
 {
     public class Startup
     {
@@ -28,9 +23,17 @@ namespace CodersAcademy
         {
 
             services.AddControllers();
+
+            services.AddDbContext<MusicContext>(c =>
+            {
+                c.UseSqlite(this.Configuration.GetConnectionString("BootcampConnection"));
+            });
+
+            services.AddScoped<AlbumRepository>();
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CodersAcademy", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CodersAcademy.API", Version = "v1" });
             });
         }
 
@@ -41,7 +44,7 @@ namespace CodersAcademy
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CodersAcademy v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CodersAcademy.API v1"));
             }
 
             app.UseHttpsRedirection();
